@@ -8,6 +8,29 @@ import time
 from random import randint
 from praw.models import MoreComments
 
+def saveArrays( comments_replied_to, submissions_opened ):
+	with open("boobytrap_comments.txt","a") as f:
+		for comment_id in comments_replied_to:
+			f.write(comment_id + "\n")
+
+	with open("boobytrap_submissions.txt","a") as f:
+		for submission_id in submissions_opened:
+			f.write(submission_id + "\n")
+
+# Read and parse arguments
+print str(sys.argv[1])
+
+no_args 	   = len(sys.argv)
+no_submissions = int(sys.argv[1]) 
+
+if no_args != 2:
+	print "You must include the number of submissions! \nEx: \"python boobytrap.py 300\" -> Searches through the Hottest 300 Submissions."
+	sys.exit()
+elif no_submissions < 1 or no_submissions > 1000:
+	print "Use a number of submissions between 1 and 1000!"
+	sys.exit()
+
+
 reddit = praw.Reddit('bot2')
 
 # Creates system files if not already created
@@ -34,7 +57,7 @@ else:
 
 subreddit = reddit.subreddit('all')
 j=0
-for i, submission in enumerate(subreddit.hot(limit=1000)):
+for i, submission in enumerate(subreddit.hot(limit=no_submissions)):
 
 	if submission.id in submissions_opened:
 		continue
@@ -56,7 +79,7 @@ for i, submission in enumerate(subreddit.hot(limit=1000)):
 			flag = 0
 			# Excludes comments already replied to and bot's own comments
 			if (comment.id not in comments_replied_to) and (comment.author.name != "boobytrap_bot") and (comment.score > 10):
-				if comment.body.lower().find("gallowboob") != -1
+				if comment.body.lower().find("gallowboob") != -1:
 					continue
 				if comment.body.lower().find("boobs") != -1:
 					try:
@@ -93,17 +116,8 @@ for i, submission in enumerate(subreddit.hot(limit=1000)):
 	j = j+1
 	print "* End of Submission *"
 
-with open("boobytrap_comments.txt","a") as f:
-	for comment_id in comments_replied_to:
-		f.write(comment_id + "\n")
+saveArrays(comments_replied_to, submissions_opened)
 
-with open("boobytrap_submissions.txt","a") as f:
-	for submission_id in submissions_opened:
-		f.write(submission_id + "\n")
 
 	# TODO
 		# Find out where all the Null Authors are comming from
-		# Figure out if we are loading arrays properly, from the text file
-		# Figure out if we are checking against the array properly
-		# Change implementation, from checking against author name to checking string contents (if doesn't contain "here are some great...")
-		# ignore gallowboob (maybe insert spaces before boob)
